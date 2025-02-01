@@ -5,7 +5,6 @@ import * as bcrypt from "bcrypt";
 import { CreateUserDto } from './dto/create-user.dto';
 import { Prisma } from '@prisma/client';
 import { updateUserDto } from './dto/update-user.dto';
-import { find } from 'rxjs';
 
 const saltOrRounds = 10;
 
@@ -15,7 +14,7 @@ export class UsersService {
 
     async createUser(dto : CreateUserDto): Promise<{message: string}> {
         const {email, username, password} = dto;
-        const existUser = this.findUser({ email });
+        const existUser = await this.findUser({ email });
 
         if (existUser) {
             throw new BadRequestException(`User with email - ${email} is exist`)
@@ -23,7 +22,7 @@ export class UsersService {
 
         const hashedPass = await this.hashPassword(password);
 
-        const createdUser = await this.prismaService.user.create({
+        await this.prismaService.user.create({
             data: {
                 username,
                 email,
