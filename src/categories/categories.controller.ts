@@ -15,9 +15,9 @@ export class CategoriesController {
     return this.categoriesService.createCategory({ userId, dto });
   }
 
-  @Put('/:userId/:categoryId')
-  async updateCategory(@Param('userId') userId: string, @Param('categoryId') categoryId: string, @Body() dto: RequestCategoryDto): Promise<ResponseCategoryDto> {
-    return this.categoriesService.updateCategory({userId, categoryId, dto});
+  @Put('/:userId')
+  async updateCategory(@Param('userId') userId: string, @Body() dto: UpdateCategoryDto): Promise<ResponseCategoryDto> {
+    return this.categoriesService.updateCategory({userId, dto});
   }
 
   @Get("/all/:userId")
@@ -25,7 +25,7 @@ export class CategoriesController {
     return this.categoriesService.findAllByUser(userId);
   }
 
-  @Get("/:id")
+  @Get("/single/:id")
   async getCategoryById(@Param('id') id: string): Promise<ResponseCategoryDto> {
     return this.categoriesService.findCategoryById(id);
   }

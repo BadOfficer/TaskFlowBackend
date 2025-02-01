@@ -20,7 +20,7 @@ export class CategoriesService {
             throw new BadRequestException(`Category ${dto.title} is exist`)
         }
         
-        const newCategory = await this.prismaService.category.create({
+        return this.prismaService.category.create({
             data: {
                 title: dto.title,
                 user: {
@@ -30,18 +30,13 @@ export class CategoriesService {
                 }
             }
         })
-
-        return {
-            id: newCategory.id,
-            title: newCategory.title
-        }
     }
 
-    async updateCategory({userId, categoryId, dto}: {userId: string, categoryId: string, dto: RequestCategoryDto}): Promise<ResponseCategoryDto> {
-        const existCategory = await this.findCategoryById(categoryId);
+    async updateCategory({userId, dto}: {userId: string, dto: UpdateCategoryDto}): Promise<ResponseCategoryDto> {
+        const existCategory = await this.findCategoryById(dto.id);
 
         if(!existCategory) {
-            throw new NotFoundException(`Category with id - ${categoryId} not found`)
+            throw new NotFoundException(`Category with id - ${dto.id} not found`)
         }
 
         const existCategoryByTitle = await this.prismaService.category.findFirst({
@@ -57,7 +52,7 @@ export class CategoriesService {
 
         return this.prismaService.category.update({
             where: {
-                id: categoryId
+                id: dto.id
             },
             data: {
                 title: dto.title
@@ -77,7 +72,7 @@ export class CategoriesService {
         }
     }
 
-    async findCategoryById(id: string) {
+    async findCategoryById(id: string): Promise<ResponseCategoryDto> {
         return this.prismaService.category.findUnique({
             where: {
                 id
@@ -85,7 +80,7 @@ export class CategoriesService {
         })
     }
 
-    async findAllByUser(userId: string) {
+    async findAllByUser(userId: string): Promise<ResponseCategoryDto[]> {
         return this.prismaService.category.findMany({
             where: {
                 userId
