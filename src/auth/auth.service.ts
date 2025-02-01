@@ -5,6 +5,7 @@ import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/users/user.interface';
 import { JwtService } from '@nestjs/jwt';
+import { ResponseTokens } from './response-tokens.interface';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +20,7 @@ export class AuthService {
         return "User has been registered successfully"
     }
 
-    async login(dto: LoginDto) {
+    async login(dto: LoginDto): Promise<User & ResponseTokens> {
         const validateUser = await this.validateUser({
             email: dto.email,
             password: dto.password
@@ -33,7 +34,7 @@ export class AuthService {
         }
     }
 
-    async refreshTokens({refreshToken}: {refreshToken: string}) {
+    async refreshTokens({refreshToken}: {refreshToken: string}): Promise<User & ResponseTokens> {
         const verifyToken = await this.jwtService.verify(refreshToken);
 
         if(!verifyToken) {
@@ -68,7 +69,7 @@ export class AuthService {
         return existUser;
     }
 
-    private issueTokens(payload: {userId: string}): {accessToken: string, refreshToken: string} {
+    private issueTokens(payload: {userId: string}): ResponseTokens {
         const accessToken = this.jwtService.sign(payload, {
             expiresIn: '24h'
         })
@@ -77,6 +78,9 @@ export class AuthService {
             expiresIn: '7d'
         })
 
-        return {accessToken, refreshToken}
+        return {
+            accessToken,
+            refreshToken
+        }
     }
 }
